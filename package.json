@@ -4,12 +4,12 @@
   "main": "script.js",
   "scripts": {
     "start": "nodemon server.js"
-   
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.38.5",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.20.2",
     "clarifai": "^2.9.1",

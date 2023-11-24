@@ -1,20 +1,21 @@
-const handleProfileGet = (req, res, db) => {
-    const { id } = req.params;
-    db.select('*').from('users').where({id})
-     .then(user => {
-        if(user.length) {
-           res.json(user[0])
-          } else {
-             res.status(400).json('Not found')
+const handleProfileGet = async (req, res, supabase) => {
+   const { id } = req.params;
+   let { data, error } = await supabase
+     .from('users')
+     .select('*')
+     .eq('id', id)
+     .single();
  
-           }
- 
-     })
-      .catch(err => res.status(400).json('error getting user'))
+   if (error) {
+     res.status(400).json('error getting user');
+   } else if (data) {
+     res.json(data);
+   } else {
+     res.status(400).json('Not found');
+   }
  }
-
-
+ 
  module.exports = {
-    handleProfileGet
-  
-  };
+   handleProfileGet
+ };
+ 

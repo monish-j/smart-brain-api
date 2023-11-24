@@ -5,10 +5,10 @@ const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const Clarifai = require('clarifai');
 
-const register = require('./controllers/register');
-const signin = require('./controllers/signin');
-const profile = require('./controllers/profile');
-const image = require('./controllers/image');
+// const register = require('./controllers/register');
+// const signin = require('./controllers/signin');
+// const profile = require('./controllers/profile');
+// const image = require('./controllers/image');
 
 require('dotenv').config();
 const supabaseUrl = 'https://uwesdmrwcmooybaqwxls.supabase.co';

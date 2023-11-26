@@ -10,9 +10,9 @@ const Clarifai = require('clarifai');
 // const profile = require('./controllers/profile');
 // const image = require('./controllers/image');
 
-require('dotenv').config();
+
 const supabaseUrl = 'https://uwesdmrwcmooybaqwxls.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseKey = process.env.secret_role; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const app = new Clarifai.App({

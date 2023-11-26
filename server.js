@@ -10,12 +10,17 @@ const profile = require('./controllers/profile');
 const image = require('./controllers/image');
 
 const supabaseUrl = 'https://uwesdmrwcmooybaqwxls.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY; // Use environment variable
+const supabaseKey =  process.env.secret_role; // Use environment variable
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const app = express();
+const allowedOrigins = [
+  'https://smart-brain-alpha.vercel.app',
+  'https://smart-brain-jn733zqky-monishs-projects-dc4ad6db.vercel.app',
+  'https://smart-brain-git-main-monishs-projects-dc4ad6db.vercel.app'
+];
 
-app.use(cors());
+app.use(cors({ origin: allowedOrigins }));
 app.use(bodyParser.json()); // Use body-parser middleware
 
 app.get('/', (req, res)=> { res.send('It works!') });

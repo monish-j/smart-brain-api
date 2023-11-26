@@ -1,4 +1,5 @@
 const handleSignin = async (req, res, supabase, bcrypt) => {
+  console.log('Request Body:', req.body);
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json('incorrect form submission');
@@ -31,6 +32,9 @@ const handleSignin = async (req, res, supabase, bcrypt) => {
     res.status(400).json('wrong credentials');
   }
 }
+
+
+
 
 module.exports = {
   handleSignin: handleSignin

@@ -10,8 +10,35 @@ const profile = require('./controllers/profile');
 const image = require('./controllers/image');
 
 const supabaseUrl = 'https://uwesdmrwcmooybaqwxls.supabase.co';
-const supabaseKey =  process.env.secret_role; // Use environment variable
+const supabaseKey = process.env.secret_role; // Use environment variable
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Function to create policies
+async function createPolicies() {
+  try {
+    await supabase.query(`
+      CREATE POLICY "Allow anonymous access" ON users TO anon FOR
+      SELECT
+        USING (true);
+
+      CREATE POLICY "Allow service access" ON users TO service_role FOR
+      SELECT
+        USING (true);
+
+      CREATE POLICY "Allow anonymous access" ON login TO anon FOR
+      SELECT
+        USING (true);
+
+      CREATE POLICY "Allow service access" ON login TO service_role FOR
+      SELECT
+        USING (true);
+    `);
+
+    console.log('Policies created successfully.');
+  } catch (error) {
+    console.error('Error creating policies:', error.message);
+  }
+}
 
 const app = express();
 const allowedOrigins = [
@@ -23,11 +50,28 @@ const allowedOrigins = [
 app.use(cors({ origin: allowedOrigins }));
 app.use(bodyParser.json()); // Use body-parser middleware
 
-app.get('/', (req, res)=> { res.send('It works!') });
-app.post('/signin', (req, res, next) => { signin.handleSignin(supabase, bcrypt).catch(next) });
-app.get('/profile/:id', (req, res, next) => { profile.handleProfileGet(req, res, supabase).catch(next)});
-app.put('/image', (req, res, next) => { image.handleImage(req, res, supabase).catch(next)});
-app.post('/imageurl', (req, res, next) => { image.handleApiCall(req, res).catch(next)});
+app.get('/', (req, res) => {
+  res.send('It works!');
+});
+
+// Create policies before starting the server
+createPolicies();
+
+app.post('/signin', (req, res, next) => {
+  signin.handleSignin(supabase, bcrypt).catch(next);
+});
+
+app.get('/profile/:id', (req, res, next) => {
+  profile.handleProfileGet(req, res, supabase).catch(next);
+});
+
+app.put('/image', (req, res, next) => {
+  image.handleImage(req, res, supabase).catch(next);
+});
+
+app.post('/imageurl', (req, res, next) => {
+  image.handleApiCall(req, res).catch(next);
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -36,10 +80,9 @@ app.use((err, req, res, next) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body; // extract name, email, and password from request body
+  const { name, email, password } = req.body;
 
-  // hash the password before storing it
-  bcrypt.hash(password, null, null, async function(err, hash) {
+  bcrypt.hash(password, null, null, async function (err, hash) {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: 'An error occurred while hashing the password' });
@@ -72,7 +115,6 @@ app.post('/register', async (req, res) => {
 
     if (userError) {
       console.error(userError);
-      // If inserting data into the users table fails, delete the data from the login table
       await supabase
         .from('login')
         .delete()
@@ -84,10 +126,8 @@ app.post('/register', async (req, res) => {
   });
 });
 
-// Use an environment variable or the Vercel provided variable to set the port
 const port = process.env.PORT || 3000;
 
-// Use the port variable in your app.listen method
-app.listen(port, ()=> {
+app.listen(port, () => {
   console.log(`app is running on port ${port}`);
 });

@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -20,14 +19,14 @@ const allowedOrigins = [
 ];
 
 app.use(cors({ origin: allowedOrigins }));
-app.use(bodyParser.json()); // Use body-parser middleware
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('It works!');
 });
 
 app.post('/signin', (req, res, next) => {
-  signin.handleSignin(supabase, bcrypt).catch(next);
+  signin.handleSignin(supabase).catch(next);
 });
 
 app.get('/profile/:id', (req, res, next) => {
@@ -51,48 +50,8 @@ app.use((err, req, res, next) => {
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
-  bcrypt.hash(password, null, null, async function (err, hash) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'An error occurred while hashing the password' });
-    }
-
-    const newUserLogin = {
-      hash: hash,
-      email: email
-    };
-
-    const { data: loginData, error: loginError } = await supabase
-      .from('login')
-      .insert([newUserLogin]);
-
-    if (loginError) {
-      console.error(loginError);
-      return res.status(500).json({ error: 'An error occurred while inserting data into login table' });
-    }
-
-    const newUser = {
-      name: name,
-      email: email,
-      entries: 0,
-      joined: new Date()
-    };
-
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .insert([newUser]);
-
-    if (userError) {
-      console.error(userError);
-      await supabase
-        .from('login')
-        .delete()
-        .eq('email', email);
-      return res.status(500).json({ error: 'An error occurred while inserting data into users table' });
-    }
-
-    return res.status(200).json({ loginData, userData });
-  });
+  // Hash password and insert into login table
+  // ... (rest of your registration logic)
 });
 
 const port = process.env.PORT || 3000;

@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 
-const register = require('./controllers/register');
 const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
@@ -12,55 +11,6 @@ const image = require('./controllers/image');
 const supabaseUrl = 'https://uwesdmrwcmooybaqwxls.supabase.co';
 const supabaseKey = process.env.secret_role; // Use environment variable
 const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Function to create roles and set up policies
-async function setupRolesAndPolicies() {
-  try {
-    // Create roles
-    await supabase.auth.createRole({
-      name: 'anon',
-    });
-
-    await supabase.auth.createRole({
-      name: 'authenticated',
-    });
-
-    await supabase.auth.createRole({
-      name: 'service_role',
-    });
-
-    // Create policies
-    await supabase.query(`
-      CREATE POLICY "Allow anonymous access" ON users TO anon FOR
-      SELECT
-        USING (true);
-
-      CREATE POLICY "Allow authenticated access" ON users TO authenticated FOR
-      SELECT, INSERT, UPDATE, DELETE
-        USING (true);
-
-      CREATE POLICY "Allow service access" ON users TO service_role FOR
-      SELECT, INSERT, UPDATE, DELETE
-        USING (true);
-
-      CREATE POLICY "Allow anonymous access" ON login TO anon FOR
-      SELECT
-        USING (true);
-
-      CREATE POLICY "Allow authenticated access" ON login TO authenticated FOR
-      SELECT, INSERT, UPDATE, DELETE
-        USING (true);
-
-      CREATE POLICY "Allow service access" ON login TO service_role FOR
-      SELECT, INSERT, UPDATE, DELETE
-        USING (true);
-    `);
-
-    console.log('Roles and policies created successfully.');
-  } catch (error) {
-    console.error('Error setting up roles and policies:', error.message);
-  }
-}
 
 const app = express();
 const allowedOrigins = [
@@ -75,9 +25,6 @@ app.use(bodyParser.json()); // Use body-parser middleware
 app.get('/', (req, res) => {
   res.send('It works!');
 });
-
-// Create roles and set up policies before starting the server
-setupRolesAndPolicies();
 
 app.post('/signin', (req, res, next) => {
   signin.handleSignin(supabase, bcrypt).catch(next);
